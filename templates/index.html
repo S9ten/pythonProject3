@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-
+    <title>🚀KanashStore</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <div class="container">
 
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
@@ -20,10 +20,12 @@
                         <p class="card-text">{{i.price}}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-outline-secondary">купить</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary">понравилось</button>
+                                <form method="post">
+                                    <button class="btn btn-success" type="submit">купить</button>
+                                    <button class="btn btn-success" type="submit">понравилось</button>
+                                </form>
                             </div>
-                            <small class="text-body-secondary">каво</small>
+                            <small class="text-body-secondary">{{i.description}}</small>
                         </div>
                     </div>
                 </div>
