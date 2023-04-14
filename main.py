@@ -1,81 +1,174 @@
-from flask import Flask, render_template, request, redirect, send_from_directory, url_for
-from flask_login import current_user
-from flask_sqlalchemy import SQLAlchemy
-import os
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, url_for, request, render_template, redirect, abort
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_restful import Api
+
+from data import db_session
+from data.products import Product
+from data.users import User
+from forms.login_forms import LoginForm
+from forms.product import ProductForm
+from forms.user import RegisterForm, UserEditForm
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/Grigoriy/PycharmProjects/pythonProject3/shop.db'
-db = SQLAlchemy(app)
+app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+api = Api(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 
-class Product(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    price = db.Column(db.Integer, nullable=False)
-    description = db.Column(db.String(100))
-    # photo = ???
-
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    email = db.Column(db.String(100), nullable=False)
-    dealer_id = db.Column(db.String(30))
-    date = db.Column(db.DateTime)
-    password = db.Column(db.String(100), nullable=False)
-    adress = db.Column(db.String(100))
-
-
-@app.route('/', methods=["GET", "POST"])
+@app.route('/')
 def index():
-    items = Product.query.order_by(Product.price).all()
-    if request.method == "POST":
+    if current_user.is_authenticated:
+        db_sess = db_session.create_session()
+        products = db_sess.query(Product)
+        return render_template('index.html', title='Товары', products=products)
+    else:
+        return redirect('/login')
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember_me.data)
+            return redirect("/")
+        return render_template('login.html',
+                               message="Неправильный логин или пароль",
+                               form=form)
+    return render_template('login.html', title='Авторизация', form=form)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
+
+
+@app.route('/registr', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        if form.password.data != form.password_again.data:
+            return render_template('create_profile.html', title='Регистрация',
+                                   form=form,
+                                   message="Пароли не совпадают")
+        db_sess = db_session.create_session()
+        if db_sess.query(User).filter(User.email == form.email.data).first():
+            return render_template('create_profile.html', title='Регистрация',
+                                   form=form,
+                                   message="Такой пользователь уже есть")
+        user = User(
+            name=form.name.data,
+            surname=form.surname.data,
+            email=form.email.data,
+            age=form.age.data,
+            address=form.address.data,
+            is_admin=False
+        )
+        user.set_password(form.password.data)
+        db_sess.add(user)
+        db_sess.commit()
+
+        return redirect('/login')
+    return render_template('create_profile.html', title='Регистрация', form=form)
+
+
+@app.route('/user/ed/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def edit_user(user_id):
+    form = UserEditForm()
+    db_sess = db_session.create_session()
+    if request.method == "GET":
+        if current_user.id == user_id or current_user.is_admin:
+            user = db_sess.query(User).filter(User.id == user_id).first()
+            if user:
+                form.email.data = user.email
+                form.name.data = user.name
+                form.surname.data = user.surname
+                form.age.data = user.age
+                form.address.data = user.address
+                form.is_admin.data = user.is_admin
+            else:
+                abort(404)
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        user = db_sess.query(User).filter(User.id == user_id).first()
+        if user:
+            user.email = form.email.data
+            user.name = form.name.data
+            user.surname = form.surname.data
+            user.age = form.age.data
+            user.address = form.address.data
+            user.is_admin = form.is_admin.data
+            if form.password.data:
+                user.set_password(form.password.data)
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('create_profile.html', edit=True, title='Редактирование', form=form)
+
+
+@app.route('/user/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def user(user_id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == user_id).first()
+    return render_template('user.html', title='Страница', user=user)
+
+
+@app.route('/create', methods=['GET', 'POST'])
+@login_required
+def addproduct():
+    form = ProductForm()
+    db_sess = db_session.create_session()
+    if form.validate_on_submit():
+        product = Product()
+        product.title = form.title.data
+        product.price = form.price.data
+        product.about = form.about.data
+
+        # current_user.news.append(news)
+        # db_sess.merge(current_user)
+
+        product.manufacturer = current_user
+        db_sess.merge(product)
+
+        db_sess.commit()
         return redirect('/')
-    return render_template('index.html', data=items)
+    return render_template('create.html', title='Добавление продукта',
+                           form=form)
 
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-
-@app.route('/registr', methods=["GET", "POST"])
-def create_profile():
-    if request.method == 'POST':
-        name = request.form['name']
-        dealer_id = request.form['dealer_id']
-        email = request.form['email']
-        # не защищен!!!!!!!!!!!!
-        password = request.form['password']
-        adress = request.form['adress']
-        user = User(name=name, dealer_id=dealer_id, email=email, password=password, adress=adress)
-        try:
-            db.session.add(user)
-            db.session.commit()
-            return redirect('/')
-        except:
-            return 'ERROR'
+@app.route('/product_delete/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def product_delete(product_id):
+    db_sess = db_session.create_session()
+    if current_user.is_admin:
+        product = db_sess.query(Product).filter(Product.id == product_id,
+                                                Product.manufacturer == current_user).first()
     else:
-        return render_template('create_profile.html')
-
-
-@app.route('/create', methods=["GET", "POST"])
-def create():
-    if request.method == 'POST':
-        name = request.form['name']
-        price = request.form['price']
-        description = request.form['description']
-        product = Product(name=name, price=price, description=description)
-        try:
-            db.session.add(product)
-            db.session.commit()
-            return redirect('/')
-        except:
-            return 'ERROR'
+        product = None
+    if product:
+        db_sess.delete(product)
+        db_sess.commit()
     else:
-        return render_template('create.html')
+        abort(404)
+    return redirect('/')
 
 
 if __name__ == '__main__':
-    app.run()
+    db_session.global_init("db/store.db")
+    app.run(port=8080, host='127.0.0.1')
