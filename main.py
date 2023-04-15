@@ -74,8 +74,8 @@ def register():
             email=form.email.data,
             age=form.age.data,
             address=form.address.data,
-            is_admin=False
-        )
+            is_admin=False,
+        dealer_id=form.dealer_id.data)
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()

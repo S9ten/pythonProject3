@@ -1,5 +1,6 @@
 <link rel="stylesheet" , href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+<title>Registration</title>
 {% block content %}
 <h1>Регистрация</h1>
 <form action="" method="post">
@@ -62,6 +63,15 @@
         {{ form.address.label }}<br>
         {{ form.address(class="form-control") }}<br>
         {% for error in form.address.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+        <p>
+        {{ form.dealer_id.label }}<br>
+        {{ form.dealer_id(class="form-control") }}<br>
+        {% for error in form.dealer_id.errors %}
     <p class="alert alert-danger" role="alert">
         {{ error }}
     </p>

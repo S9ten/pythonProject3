@@ -30,6 +30,8 @@ class User(SqlAlchemyBase, UserPassword, UserMixin, SerializerMixin):
     address = sqlalchemy.Column(sqlalchemy.String, nullable=True)  # адрес
     email = sqlalchemy.Column(sqlalchemy.String,
                               index=True, unique=True, nullable=True)  # электронная почта
+    dealer_id = sqlalchemy.Column(sqlalchemy.String,
+                                  index=True, unique=True, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)  # хэшированный пароль
     is_admin = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime,

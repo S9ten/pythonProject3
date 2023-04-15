@@ -13,8 +13,8 @@ class Product(SqlAlchemyBase, UserMixin, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
     title = sqlalchemy.Column(sqlalchemy.String, nullable=False)  # название товара
-    manufacturer_id = sqlalchemy.Column(sqlalchemy.Integer,
-                                        sqlalchemy.ForeignKey("users.id"))
+    manufacturer_id = sqlalchemy.Column(sqlalchemy.String,
+                                        sqlalchemy.ForeignKey("users.dealer_id"))
     price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     about = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     image = sqlalchemy.Column(sqlalchemy.String)
