@@ -12,7 +12,7 @@ class RegisterForm(FlaskForm):
     dealer_id = StringField('Dealer id', validators=[DataRequired()])
     age = IntegerField('Возраст', validators=[DataRequired()])
     address = StringField('Адрес', validators=[DataRequired()])
-    is_admin = BooleanField('Админ', default=False)
+    is_admin = BooleanField('Продавец', default=False)
     submit = SubmitField('Зарегистрироваться')
 
 

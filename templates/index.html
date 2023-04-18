@@ -1,42 +1,74 @@
-<link rel="stylesheet" , href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-<title>Market</title>
-{% block content %}
-<div class="container">
-    <a class="btn btn-danger" href="/logout" role="button">Выйти</a>
-    <a class="btn btn-success" href="/create" role="button">Добавить товар</a>
-    <a class="btn-primary" href="/user/{{ current_user.id }}">My profile:{{ current_user.name }}
-        {{current_user.surname}}</a>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-        {%for i in products%}
-        <div class="col">
-            <div class="card shadow-sm">
-                <svg class="bd-placeholder-img card-img-top" width="100%" height="225"
-                     xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: صورة مصغرة"
-                     preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title>
-                    <rect width="100%" height="100%" fill="#55595c"></rect>
-                    <text x="50%" y="50%" fill="#eceeef" dy=".3em">{{i.title}}</text>
-                </svg>
-                <div class="card-body">
-                    <p class="card-text">{{i.price}}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="btn-group">
-                            <form method="post">
-                                <button class="btn btn-success" type="submit">купить💵</button>
-                                <button class="btn btn-danger" type="submit">понравилось❤️</button>
-                            </form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" , href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <title>Market</title>
+    {% block content %}
+    <div class="container">
+        {%if current_user.is_authenticated%}
+        <section class="py-5 text-center container">
+            <div class="row py-lg-5">
+                <div class="col-lg-6 col-md-8 mx-auto">
+                    <h1 class="fw-light">{{current_user.name}} {{current_user.surname}}</h1>
+                    <p>
+                        <a class="btn btn-danger" href="/logout" role="button">Выйти</a>
+                        <a class="btn btn-primary" href="/user/{{ current_user.manufacturer_id }}">Мой профиль</a>
+                        {%if current_user.is_admin%}
+                        <a class="btn btn-success" href="/create" role="button">Добавить товар</a>
+                        {%endif%}
+                    </p>
+                </div>
+            </div>
+        </section>
+        {%endif%}
+
+        {%if not current_user.is_authenticated%}
+        <section class="py-5 text-center container">
+            <div class="row py-lg-5">
+                <div class="col-lg-6 col-md-8 mx-auto">
+                    <h1 class="fw-light">Вы не вошли в аккаунт. Исправим?</h1>
+                    <p class="lead text-body-secondary">Вы можете войти в свой аккаунт или создать новый если у вас его
+                        нет.</p>
+                    <p>
+                        <a class="btn btn-primary" , href="/login" , role="button">Войти</a>
+                        <a class="btn btn-success" , href="/registr" , role="button">Зарегистрироваться</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+        {%endif%}
+
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            {%for i in products%}
+            <div class="col">
+                <div class="card shadow-sm">
+                    {%if i[0].image%}
+                    <img height="150" src="data:image/jpeg;base64,{{ i[0].image }}"/>
+                    {%endif%}
+                    <div class="card-body">
+                        <p class="card-text">{{i[0].title}}
+                            Цена: {{i[0].price}} рублей</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <form method="post">
+                                    <button class="btn btn-success" type="submit">купить💵</button>
+                                    <button class="btn btn-danger" type="submit">понравилось❤️</button>
+                                </form>
+                            </div>
+                            <a class="class=btn btn-primary" , href="/user/{{ i[0].manufacturer_id }}">{{i[0].manufacturer_id}}</a>
+                            <small class="text-body-secondary">{{i[1]}}</small>
                         </div>
-                        <small class="text-body-secondary">{{i.manufacturer_id}}</small>
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
-</div>
-</div>
-<br>
-{% if current_user.is_admin %}
-<a href="/addproduct" class="btn btn-secondary">Добавить продукт</a>
-{% endif %}
-{% endblock %}
+    </div>
+    <br>
+    {% endblock %}
+</head>
+</html>

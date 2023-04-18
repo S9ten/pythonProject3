@@ -1,13 +1,14 @@
 from flask import Flask, url_for, request, render_template, redirect, abort
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_restful import Api
-
+from data.category import Category
 from data import db_session
 from data.products import Product
 from data.users import User
 from forms.login_forms import LoginForm
 from forms.product import ProductForm
 from forms.user import RegisterForm, UserEditForm
+from img_reverse import byte_img_to_html
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -19,12 +20,15 @@ login_manager.init_app(app)
 
 @app.route('/')
 def index():
-    if current_user.is_authenticated:
-        db_sess = db_session.create_session()
-        products = db_sess.query(Product)
-        return render_template('index.html', title='Товары', products=products)
-    else:
-        return redirect('/login')
+    db_sess = db_session.create_session()
+    products = db_sess.query(Product)
+    lst = []
+    for i in products:
+        s = []
+        for j in i.categories:
+            s.append(j.name)
+        lst.append((i, ' '.join(s)))
+    return render_template('index.html', title='Товары', products=lst)
 
 
 @login_manager.user_loader
@@ -74,8 +78,8 @@ def register():
             email=form.email.data,
             age=form.age.data,
             address=form.address.data,
-            is_admin=False,
-        dealer_id=form.dealer_id.data)
+            is_admin=form.is_admin.data,
+            dealer_id=form.dealer_id.data)
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
@@ -99,6 +103,7 @@ def edit_user(user_id):
                 form.age.data = user.age
                 form.address.data = user.address
                 form.is_admin.data = user.is_admin
+                form.dealer_id.data = user.dealer_id
             else:
                 abort(404)
         else:
@@ -112,6 +117,7 @@ def edit_user(user_id):
             user.age = form.age.data
             user.address = form.address.data
             user.is_admin = form.is_admin.data
+            user.dealer_id = form.dealer_id.data
             if form.password.data:
                 user.set_password(form.password.data)
             db_sess.commit()
@@ -121,28 +127,34 @@ def edit_user(user_id):
     return render_template('create_profile.html', edit=True, title='Редактирование', form=form)
 
 
-@app.route('/user/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/user/<string:user_id>', methods=['GET', 'POST'])
 @login_required
 def user(user_id):
-    db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.id == user_id).first()
-    return render_template('user.html', title='Страница', user=user)
-
+    if current_user.is_authenticated:
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.dealer_id == user_id).first()
+        return render_template('user.html', title='Страница', user=user)
+    else:
+        return redirect('/login')
 
 @app.route('/create', methods=['GET', 'POST'])
 @login_required
 def addproduct():
     form = ProductForm()
     db_sess = db_session.create_session()
+    categories = db_sess.query(Category).all()
+    form.category.choices = [(i.id, i.name) for i in categories]
     if form.validate_on_submit():
         product = Product()
         product.title = form.title.data
         product.price = form.price.data
         product.about = form.about.data
-
+        product.categories.extend(
+            db_sess.query(Category).filter(Category.id.in_(form.category.data)).all())
         # current_user.news.append(news)
         # db_sess.merge(current_user)
-
+        if request.files['file']:
+            product.image = byte_img_to_html(request.files['file'])
         product.manufacturer = current_user
         db_sess.merge(product)
 

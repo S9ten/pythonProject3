@@ -20,5 +20,7 @@ class Product(SqlAlchemyBase, UserMixin, SerializerMixin):
     image = sqlalchemy.Column(sqlalchemy.String)
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                       default=datetime.datetime.now)
-
+    categories = orm.relationship("Category",
+                                  secondary="association",
+                                  backref="products")
     manufacturer = orm.relationship('User')
