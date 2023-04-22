@@ -2,6 +2,7 @@ from flask import Flask, url_for, request, render_template, redirect, abort
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_restful import Api
 from data.category import Category
+from data.cart import Cart
 from data import db_session
 from data.products import Product
 from data.users import User
@@ -22,6 +23,32 @@ login_manager.init_app(app)
 def index():
     db_sess = db_session.create_session()
     products = db_sess.query(Product)
+    lst = []
+    for i in products:
+        s = []
+        for j in i.categories:
+            s.append(j.name)
+        lst.append((i, ' '.join(s)))
+    return render_template('index.html', title='Товары', products=lst)
+
+
+@app.route('/sort_price')
+def sort_price():
+    db_sess = db_session.create_session()
+    products = db_sess.query(Product).order_by(Product.price)
+    lst = []
+    for i in products:
+        s = []
+        for j in i.categories:
+            s.append(j.name)
+        lst.append((i, ' '.join(s)))
+    return render_template('index.html', title='Товары', products=lst)
+
+
+@app.route('/sort_date')
+def sort_date():
+    db_sess = db_session.create_session()
+    products = db_sess.query(Product).order_by(Product.modified_date)
     lst = []
     for i in products:
         s = []
@@ -137,6 +164,7 @@ def user(user_id):
     else:
         return redirect('/login')
 
+
 @app.route('/create', methods=['GET', 'POST'])
 @login_required
 def addproduct():
@@ -164,21 +192,84 @@ def addproduct():
                            form=form)
 
 
-@app.route('/product_delete/<int:product_id>', methods=['GET', 'POST'])
+# @app.route('/product_delete/<int:product_id>', methods=['GET', 'POST'])
+# @login_required
+# def product_delete(product_id):
+#     db_sess = db_session.create_session()
+#     if current_user.is_admin:
+#         product = db_sess.query(Product).filter(Product.id == product_id,
+#                                                 Product.manufacturer == current_user).first()
+#     else:
+#         product = None
+#     if product:
+#         db_sess.delete(product)
+#         db_sess.commit()
+#     else:
+#         abort(404)
+#     return redirect('/')
+
+
+@app.route('/delete/<int:product_id>', methods=['GET', 'POST'])
 @login_required
-def product_delete(product_id):
+def delete(product_id):
     db_sess = db_session.create_session()
     if current_user.is_admin:
-        product = db_sess.query(Product).filter(Product.id == product_id,
-                                                Product.manufacturer == current_user).first()
-    else:
-        product = None
-    if product:
+        product = db_sess.query(Product).filter(Product.id == product_id).first()
         db_sess.delete(product)
         db_sess.commit()
-    else:
-        abort(404)
     return redirect('/')
+
+
+@app.route('/delete_cart/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def delete_cart(product_id):
+    db_sess = db_session.create_session()
+    if current_user.is_admin:
+        product = db_sess.query(Cart).filter(Cart.id == product_id).first()
+        db_sess.delete(product)
+        db_sess.commit()
+    return redirect('/cart')
+
+
+@app.route('/clean', methods=['GET', 'POST'])
+@login_required
+def clean():
+    db_sess = db_session.create_session()
+    products = db_sess.query(Cart).filter(Cart.customer == current_user.email).all()
+    for i in products:
+        db_sess.delete(i)
+    db_sess.commit()
+    return redirect('/cart')
+
+
+@app.route('/cart_fill', methods=['GET', 'POST'])
+@login_required
+def cart_fill():
+    db_sess = db_session.create_session()
+    product = db_sess.query(Product).first()
+    user_cart = Cart()
+    user_cart.title = product.title
+    user_cart.image = product.image
+    user_cart.price = product.price
+    user_cart.about = product.about
+    user_cart.manufacturer_id = product.manufacturer_id
+    user_cart.customer = current_user.email
+    # current_user.news.append(news)
+    # db_sess.merge(current_user)
+    db_sess.merge(user_cart)
+    db_sess.commit()
+    return redirect('/')
+
+
+@app.route('/cart', methods=['GET', 'POST'])
+@login_required
+def cart():
+    db_sess = db_session.create_session()
+    products = db_sess.query(Cart)
+    lst = []
+    for i in products:
+        lst.append(i)
+    return render_template('cart.html', title='Корзина', products=lst)
 
 
 if __name__ == '__main__':

@@ -29,10 +29,29 @@
         <br>
         {{ user.dealer_id }}
     </p>
-    {% if current_user.id == user.id or current_user.is_admin %}
-    <a class="btn btn-primary" href="/user/ed/{{ user.id }}" role="button">Редактировать</a>
-    <a class="btn btn-danger" href="/logout" role="button">Выйти</a>
-    {% endif %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+        {%for i in products%}
+        <div class="col">
+            <div class="card shadow-sm">
+                {%if i[0].image%}
+                <img height="150" src="data:image/jpeg;base64,{{ i[0].image }}"/>
+                {%endif%}
+                <div class="card-body">
+                    <p class="card-text">{{i[0].title}}
+                        Цена: {{i[0].price}} рублей</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <form method="post">
+                                <button class="btn btn-success" type="submit">купить💵</button>
+                                <button class="btn btn-danger" type="submit">понравилось❤️</button>
+                            </form>
+                        </div>
+                        <small class="text-body-secondary">{{i[1]}}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
 </form>
 {% endblock %}
 
