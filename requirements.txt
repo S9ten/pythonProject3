@@ -2,3 +2,5 @@ SQLAlchemy~=2.0.8
 Werkzeug~=2.2.3
 WTForms~=3.0.1
 Flask~=2.2.3
+Flask-login
+Flask-wtf
