@@ -10,7 +10,7 @@ from forms.login_forms import LoginForm
 from forms.product import ProductForm
 from forms.user import RegisterForm, UserEditForm
 from img_reverse import byte_img_to_html
-import requests
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
