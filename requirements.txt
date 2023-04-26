@@ -4,3 +4,4 @@ WTForms~=3.0.1
 Flask~=2.2.3
 Flask-login
 Flask-wtf
+Flask-restful
