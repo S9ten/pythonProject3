@@ -12,6 +12,7 @@
             integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
             crossorigin="anonymous"></script>
     <title>Market</title>
+
 </head>
 <header>
     <nav class="navbar navbar-light bg-light">
@@ -19,22 +20,19 @@
         {% if current_user.is_authenticated %}
         <div uk-dropdown="mode: click">
             <ul class="uk-nav uk-dropdown-nav">
-                <li><a class="navbar-brand" style="color:#6c9ef3" href="/user/{{ current_user.dealer_id }}">Профиль: {{
+                <li><a class="navbar-brand" style="color:#6c9ef3" href="/user/{{ current_user.id }}">Профиль: {{
                     current_user.name }} {{
                     current_user.surname }}</a></li>
                 {% if current_user.is_admin%}
                 <li><a class="navbar-brand" href="/create" style="color:#0ab954">Добавить товар</a></li>
                 {% endif %}
-                <li><a class="navbar-brand" href="/cart" style="color:#ff5900">Корзина</a></li>
+                <li><a class="navbar-brand" href="/cart" style="color:#ff8f00">Корзина</a></li>
                 <li><a class="navbar-brand" href="/logout" style="color:#ff0000">Выйти</a></li>
-                {%if current_user.is_moder%}
-                <li><a class="btn btn-success" href="/profile_list" role="button">Юзеры</a></li>
-                {%endif%}
             </ul>
         </div>
         {% else %}
         <p>
-            <a class="btn btn-primary " href="/registr">Зарегистрироваться</a>
+            <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
             <a class="btn btn-success" href="/login">Войти</a>
         </p>
         {% endif %}
@@ -116,60 +114,52 @@
 
 <div class="container" align="center">
     <div>
-        <a class="btn btn-outline-danger" href="/sort_price" role="button">Сорт.по цене мин.</a>
-        <a class="btn btn-primary" href="/sort_date">Сорт.по дате/старые</a>
-        <a class="btn btn-outline-danger" href="/sort_price_min" role="button">Сорт. по цене макс.</a>
-        <a class="btn btn-primary" href="/sort_date_min">Сорт.по дате/новые</a>
-        <a class="btn btn-outline-info" href="/grid">вид</a>
+        <a class="btn btn-outline-danger" href="/grid_sort_price" role="button">Сорт.по цене мин.</a>
+        <a class="btn btn-primary" href="/grid_sort_date">Сорт.по дате/старые</a>
+        <a class="btn btn-outline-danger" href="/grid_sort_price_min" role="button">Сорт. по цене макс.</a>
+        <a class="btn btn-primary" href="/grid_sort_date_min">Сорт.по дате/новые</a>
+        <a class="btn btn-outline-info" href="/">Вид</a>
     </div>
-    <div class="row row-cols-1">
-        <div class="coll md-8 mx-auto">
-            {%for i in products%}
-            {%if i[0].numb > 0%}
-            <div class="col">
-                <div class="card shadow-sm">
-                    {%if i[0].image%}
-                    <div class="coll md-8 mx-auto">
-                        <img height="200" src="data:image/jpeg;base64,{{ i[0].image }}"/>
-                        {%endif%}
-                        <div class="card-body">
-                            <p class="card-text">{{i[0].title}}
-                                Цена: {{i[0].price}} рублей Осталось: {{i[0].numb}}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group">
-                                    <form method="post">
-                                        <a class="btn btn-success" href="/cart_fill/{{i[0].id}}" role="button">Добавить
-                                            в корзину</a>
-                                        <a class="btn btn-outline-dark" href="/about/{{i[0].id}}" role="button">О
-                                            товаре</a>
-                                        {%if i[0].manufacturer_id == current_user.dealer_id%}
-                                        <a class="btn btn-danger" href="/delete/{{i[0].id}}"
-                                           type="button">Удалить
-                                            товар
-                                        </a>
-                                        {%endif%}
-                                        {%if current_user.is_authenticated%}
-                                        {%if current_user.is_moder%}
-                                        <a class="btn btn-danger" href="/delete_product/{{i[0].id}}"
-                                           type="button">Удалить объявление
-                                        </a>
-                                        {%endif%}
-                                        {%endif%}
-                                    </form>
-                                </div>
-                                <a class="class=btn btn-primary" , href="/user/{{ i[0].manufacturer_id }}">{{i[0].manufacturer_id}}</a>
-                                <small class="text-body-secondary">{{i[1]}}</small>
-                            </div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+        {%for i in products%}
+        {%if i[0].numb > 0%}
+        <div class="col">
+            <div class="card shadow-sm">
+                {%if i[0].image%}
+                <img height="150" src="data:image/jpeg;base64,{{ i[0].image }}"/>
+                {%endif%}
+                <div class="card-body">
+                    <p class="card-text">{{i[0].title}}
+                        Цена: {{i[0].price}} рублей Осталось: {{i[0].numb}}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <form method="post">
+                                <a class="btn btn-success" href="/cart_fill" role="button">Добавить в корзину</a>
+                                <a class="btn btn-outline-dark" href="/about/{{i[0].id}}" role="button">О товаре</a>
+                                {%if i[0].manufacturer_id == current_user.dealer_id%}
+                                <a class="btn btn-danger" href="/delete/{{i[0].id}}"
+                                   type="button">Удалить
+                                    товар
+                                </a>
+                                {%endif%}
+                                {%if current_user.is_authenticated%}
+                                {%if current_user.is_moder%}
+                                <a class="btn btn-danger" href="/delete_product/{{i[0].id}}"
+                                   type="button">Удалить объявление
+                                </a>
+                                {%endif%}
+                                {%endif%}
+                            </form>
                         </div>
+                        <a class="class=btn btn-primary" , href="/user/{{ i[0].manufacturer_id }}">{{i[0].manufacturer_id}}</a>
+                        <small class="text-body-secondary">{{i[1]}}</small>
                     </div>
-                    {%endif%}
                 </div>
-                {% endfor %}
             </div>
         </div>
+        {%endif%}
+        {% endfor %}
     </div>
-</div>
-</div>
 </div>
 </body>
 </html>

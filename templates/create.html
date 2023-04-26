@@ -6,53 +6,63 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <title>Add product</title>
     {% block content %}
-    <h1>{{ title }}</h1>
-    <form action="" method="post" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.title.label }}<br>
-            {{ form.title(class="form-control") }}<br>
-            {% for error in form.title.errors %}
-        <p class="alert alert-danger" role="alert">
-            {{ error }}
-        </p>
-        {% endfor %}
-        </p>
+    <div class="container" align="center">
+        <h1>{{ title }}</h1>
+        <form action="" method="post" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.title.label }}<br>
+                {{ form.title(class="form-control") }}<br>
+                {% for error in form.title.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+            </p>
 
-        <p>
-            {{ form.price.label }}<br>
-            {{ form.price(class="form-control") }}<br>
-            {% for error in form.price.errors %}
-        <p content="alert alert-danger" role="alert">
-            {{ error }}
-        </p>
-        {% endfor %}
-        </p>
+            <p>
+                {{ form.price.label }}<br>
+                {{ form.price(class="form-control") }}<br>
+                {% for error in form.price.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+            </p>
 
-        <p>
-            {{ form.about.label }}<br>
-            {{ form.about(class="form-control") }}<br>
-            {% for error in form.about.errors %}
-        <p content="alert alert-danger" role="alert">
-            {{ error }}
-        </p>
-        {% endfor %}
-        </p>
-        <p>
-            {{ form.category.label }}<br>
-            {{ form.category(class="form-control") }}<br>
-            {% for error in form.category.errors %}
-        <p content="alert alert-danger" role="alert">
-            {{ error }}
-        </p>
-        {% endfor %}
-        </p>
-        <label for="photo">Выберите файл</label>
-        <input type="file" class="form-control-file" id="photo" name="file">
+            <p>
+                {{ form.about.label }}<br>
+                {{ form.about(class="form-control") }}<br>
+                {% for error in form.about.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+            </p>
+            <p>
+                {{ form.category.label }}<br>
+                {{ form.category(class="form-control") }}<br>
+                {% for error in form.category.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+            <p>
+                {{ form.numb.label }}<br>
+                {{ form.numb(class="form-control") }}<br>
+                {% for error in form.numb.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+            </p>
+            <label for="photo">Выберите файл</label>
+            <input type="file" class="form-control-file" id="photo" name="file">
 
-        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-        {{message}}
-    </form>
-    {% endblock %}
+            <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+            {{message}}
+        </form>
+        {% endblock %}
+    </div>
 </head>
 </html>

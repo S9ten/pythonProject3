@@ -16,6 +16,7 @@ class Product(SqlAlchemyBase, UserMixin, SerializerMixin):
     manufacturer_id = sqlalchemy.Column(sqlalchemy.String,
                                         sqlalchemy.ForeignKey("users.dealer_id"))
     price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    numb = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     about = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     image = sqlalchemy.Column(sqlalchemy.String)
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime,
@@ -24,3 +25,4 @@ class Product(SqlAlchemyBase, UserMixin, SerializerMixin):
                                   secondary="association",
                                   backref="products")
     manufacturer = orm.relationship('User')
+    cart = orm.relationship('Cart', back_populates='product')

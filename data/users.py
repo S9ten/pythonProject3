@@ -34,6 +34,7 @@ class User(SqlAlchemyBase, UserPassword, UserMixin, SerializerMixin):
                                   index=True, unique=True, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)  # хэшированный пароль
     is_admin = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
+    is_moder = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                       default=datetime.datetime.now)  # дата изменения
     products = orm.relationship('Product', back_populates='manufacturer')
