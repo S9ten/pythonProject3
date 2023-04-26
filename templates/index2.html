@@ -134,7 +134,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="btn-group">
                             <form method="post">
-                                <a class="btn btn-success" href="/cart_fill" role="button">Добавить в корзину</a>
+                                <a class="btn btn-success" href="/cart_fill/{{i[0].id}}" role="button">Добавить в корзину</a>
                                 <a class="btn btn-outline-dark" href="/about/{{i[0].id}}" role="button">О товаре</a>
                                 {%if i[0].manufacturer_id == current_user.dealer_id%}
                                 <a class="btn btn-danger" href="/delete/{{i[0].id}}"
