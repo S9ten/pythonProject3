@@ -161,7 +161,7 @@ def edit_user(user_id):
     form = UserEditForm()
     db_sess = db_session.create_session()
     if request.method == "GET":
-        if current_user.id == user_id or current_user.is_admin:
+        if current_user.id == user_id or current_user.is_moder:
             user = db_sess.query(User).filter(User.id == user_id).first()
             if user:
                 form.email.data = user.email
